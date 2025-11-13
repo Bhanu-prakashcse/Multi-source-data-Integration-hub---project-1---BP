@@ -199,7 +199,7 @@ with col1:
 with col2:
     st.metric("📦 Unique Products", f"{filtered_df['Product'].nunique():,}")
 with col3:
-    st.metric("💰 Total Revenue", f"{filtered_df['Total_Cost'].sum():,.2f}")
+    st.metric("💰 Total Revenue", f"${filtered_df['Total_Cost'].sum():,.1f}")
 with col4:
     st.metric("🌆 Total Cities", f"{filtered_df['City'].nunique():,}")
 with col5:
