@@ -25,33 +25,27 @@ st.set_page_config(
 # -------------------------------
 
 
-PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT", "sharedproject2025")
-ENCODED_KEY = os.environ.get("GOOGLE_CREDENTIALS", None)
+try:
+    # Read Base64 key from Streamlit Secrets
+    encoded_key = st.secrets["bigquery"]["credentials"]
+    project_id = st.secrets["bigquery"]["project"]
 
-if ENCODED_KEY:
-    try:
-        credentials_json = base64.b64decode(ENCODED_KEY).decode("utf-8")
-        creds_info = json.loads(credentials_json)
+    # Decode Base64 → JSON
+    service_account_info = json.loads(base64.b64decode(encoded_key))
 
-        credentials = service_account.Credentials.from_service_account_info(
-            creds_info,
-            scopes=["https://www.googleapis.com/auth/cloud-platform"],
-        )
+    # Create credentials object
+    credentials = service_account.Credentials.from_service_account_info(
+        service_account_info,
+        scopes=["https://www.googleapis.com/auth/cloud-platform"]
+    )
 
-        client = bigquery.Client(project="sharedproject2025", credentials=credentials)
+    # Create BigQuery client
+    client = bigquery.Client(credentials=credentials, project=project_id)
 
-    except Exception as e:
-        st.error("❌ BigQuery authentication failed. Check your base64 credentials in Streamlit secrets.")
-        st.text(traceback.format_exc())
-        raise
-else:
-    try:
-        # Local fallback — works on your laptop when GOOGLE_APPLICATION_CREDENTIALS is set
-        client = bigquery.Client(project="sharedproject2025")
-    except Exception:
-        st.error("❌ No Google credentials found (local mode).")
-        raise
-
+except Exception as e:
+    st.error("❌ BigQuery authentication failed. Please check your Streamlit secrets.")
+    st.text(str(e))
+    raise
 # -------------------------------
 # HELPERS
 # -------------------------------
