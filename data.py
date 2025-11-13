@@ -38,7 +38,7 @@ if ENCODED_KEY:
             scopes=["https://www.googleapis.com/auth/cloud-platform"],
         )
 
-        client = bigquery.Client(project=PROJECT_ID, credentials=credentials)
+        client = bigquery.Client(project="sharedproject2025", credentials=credentials)
 
     except Exception as e:
         st.error("❌ BigQuery authentication failed. Check your base64 credentials in Streamlit secrets.")
@@ -47,7 +47,7 @@ if ENCODED_KEY:
 else:
     try:
         # Local fallback — works on your laptop when GOOGLE_APPLICATION_CREDENTIALS is set
-        client = bigquery.Client(project=PROJECT_ID)
+        client = bigquery.Client(project="sharedproject2025")
     except Exception:
         st.error("❌ No Google credentials found (local mode).")
         raise
