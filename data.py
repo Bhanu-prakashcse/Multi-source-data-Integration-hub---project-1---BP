@@ -3,6 +3,11 @@ import pandas as pd
 import plotly.express as px
 from google.cloud import bigquery
 from datetime import datetime
+import os
+import base64
+import json
+import traceback
+from google.oauth2 import service_account
 
 # -------------------------------
 # PAGE CONFIG
@@ -15,7 +20,37 @@ st.set_page_config(
 # -------------------------------
 # BIGQUERY CLIENT
 # -------------------------------
-client = bigquery.Client(project="sharedproject2025")
+# -------------------------------
+# BIGQUERY AUTH FOR STREAMLIT CLOUD
+# -------------------------------
+
+
+PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT", "sharedproject2025")
+ENCODED_KEY = os.environ.get("GOOGLE_CREDENTIALS", None)
+
+if ENCODED_KEY:
+    try:
+        credentials_json = base64.b64decode(ENCODED_KEY).decode("utf-8")
+        creds_info = json.loads(credentials_json)
+
+        credentials = service_account.Credentials.from_service_account_info(
+            creds_info,
+            scopes=["https://www.googleapis.com/auth/cloud-platform"],
+        )
+
+        client = bigquery.Client(project=PROJECT_ID, credentials=credentials)
+
+    except Exception as e:
+        st.error("❌ BigQuery authentication failed. Check your base64 credentials in Streamlit secrets.")
+        st.text(traceback.format_exc())
+        raise
+else:
+    try:
+        # Local fallback — works on your laptop when GOOGLE_APPLICATION_CREDENTIALS is set
+        client = bigquery.Client(project=PROJECT_ID)
+    except Exception:
+        st.error("❌ No Google credentials found (local mode).")
+        raise
 
 # -------------------------------
 # HELPERS
