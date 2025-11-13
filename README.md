@@ -60,7 +60,7 @@ Promotion | product_id | product_name | category | product_price | rating
 To maintain historical product price and description changes, **SCD Type 2** logic was applied on the product dimension:
 
 ```sql
-MERGE `your_project_name.gold_layer.dim_product_scd` T
+MERGE `my_project_name.gold_layer.dim_product_scd` T
 USING (
 SELECT
   id AS product_id,
@@ -68,7 +68,7 @@ SELECT
   category,
   price AS product_price,
   description
-FROM `your_project_name.bronze_layer.bronze_product_catalog`
+FROM `my_project_name.bronze_layer.bronze_product_catalog`
 WHERE title = "Mens Cotton Jacket"
 ) S
 ON T.product_id = S.product_id AND T.is_current = TRUE
@@ -77,7 +77,7 @@ UPDATE SET
   T.valid_to = CURRENT_TIMESTAMP(),
   T.is_current = FALSE;
 
-INSERT INTO `your_project_name.gold_layer.dim_product_scd`
+INSERT INTO `my_project_name.gold_layer.dim_product_scd`
 (product_id, product_name, category, product_price, product_description,
 valid_from, valid_to, is_current)
 VALUES (
@@ -103,7 +103,7 @@ The dashboard connects directly to BigQuery Silver Layer using:
 ```sql
 from google.cloud import bigquery
 client = bigquery.Client(project="your_project_name")
-query = "SELECT * FROM `your_project_name.dataset_name.Silver_layer-retail_enriched`"
+query = "SELECT * FROM `my_project_name.dataset_name.Silver_layer-retail_enriched`"
 df = client.query(query).to_dataframe()
 ```
 
@@ -198,3 +198,4 @@ Real-time dashboard visualization using Streamlit.
 git clone https://github.com/Bhanuprakash-cse16/Project-1---Multi-source-data-integration-hub---BP.git
 
 ## © 2025 Multi-source Retail Data Integration Hub | Developed by Dandu Bhanu Prakash
+
